@@ -12,18 +12,18 @@ Prerequisites:
 How to RUN:
 1. Create a conda environment using the following commands
 
-  $ conda create -n FakeAlert python=3.6
+      $ conda create -n FakeAlert python=3.6
   
-  $ cd FakeNewsDetection
+      $ cd FakeNewsDetection
   
-  $ pip install -r requirements.txt
+      $ pip install -r requirements.txt
   
 2. some required commands
 
-  $ bert-serving-start -model_dir wwm_uncased_L-24_H-1024_A-16/ -num_worker=1
+      $ bert-serving-start -model_dir wwm_uncased_L-24_H-1024_A-16/ -num_worker=1
 
 3. Test with following commands
 
-  $ python final.py "COVID 19 has a new vaccine"  
+      $ python final.py "COVID 19 has a new vaccine"  
   
-  $ python final.py "COVID-19 is an unprecedented pandemic"
+      $ python final.py "COVID-19 is an unprecedented pandemic"
