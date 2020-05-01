@@ -18,11 +18,11 @@ How to RUN:
   
       $ pip install -r requirements.txt
   
-2. some required commands
+2. some required commands - after executing this command keep it running
 
       $ bert-serving-start -model_dir wwm_uncased_L-24_H-1024_A-16/ -num_worker=1
 
-3. Test with following commands
+3. Test with following commands in a new terminal 
 
       $ python final.py "COVID 19 has a new vaccine"  
   
