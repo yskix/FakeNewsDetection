@@ -287,11 +287,12 @@ def vis_topics(lda_model, corpus, dict):
     
 # Get all tweets
 all_tweets_df = pd.read_csv("./tweets_filtered.csv", index_col = 0)
-save_data_to_pickle(ORIG_TWEET_FILE, all_tweets_df)
 # Preprocess tweets
 cleaned_tweets_df = all_tweets_df.copy(deep=True)
 cleaned_tweets_df['token'] = [text_cleanup(x) for x in all_tweets_df['full_text']]
+# Save cleaned tweets and reload
 save_data_to_pickle(CLEANED_TWEET_FILE, cleaned_tweets_df)
+cleaned_tweets_df = read_data_from_pickle(CLEANED_TWEET_FILE)
 # Convert series to list for word count
 tweets_text = [word for one_tweet in cleaned_tweets_df['token'] for word in one_tweet]
 # Get common ngrams word count
@@ -301,15 +302,24 @@ tweets_wordcloud = wordcloud(word_count_df)
 # Generate ngram tokens
 cleaned_tweets_df['ngram_token'] = [word_grams(x, NUM_GRAMS, NUM_GRAMS+1) for 
                  x in cleaned_tweets_df['token']]
+save_data_to_pickle(MODEL_PATH + 'cleaned_tweets_ngrams', cleaned_tweets_df['ngram_token'])
 # Train LDA model and visualize generated topics
 lda_model = train_lda_model(cleaned_tweets_df['ngram_token'])
 print('DONE!')
 
 
 
-tweets_dict = corpora.Dictionary(cleaned_tweets_df['ngram_token'])
+cleaned_tweets_ngram = read_data_from_pickle(MODEL_PATH + 'cleaned_tweets_ngrams')
+lda_model = models.ldamodel.LdaModel.load(LDA_MODEL_FILE)
+tweets_dict = corpora.Dictionary(cleaned_tweets_ngram)
 tweets_dict.filter_extremes(no_below=10, no_above=0.5)
-bow_corpus = [tweets_dict.doc2bow(doc) for doc in cleaned_tweets_df['ngram_token']]
+# bow_corpus = [tweets_dict.doc2bow(doc) for doc in cleaned_tweets_df['ngram_token']]
 
-tfidf = models.TfidfModel(bow_corpus)
-tfidf_corpus = tfidf[bow_corpus]
+# tfidf = models.TfidfModel(bow_corpus)
+# tfidf_corpus = tfidf[bow_corpus]
+
+test_tweet = 'asdas'
+tokenized_test = text_cleanup(test_tweet)
+ngram_test = word_grams(tokenized_test, NUM_GRAMS, NUM_GRAMS+1)
+corpus_test = tweets_dict.doc2bow(ngram_test)
+topic = lda_model[corpus_test]
