@@ -1,7 +1,6 @@
 # from twitterscraper import query_tweets
 import pandas as pd
 import re, pickle, os
-import datetime 
 import nltk
 from nltk.util import ngrams
 import matplotlib.pyplot as plt
@@ -135,29 +134,7 @@ def save_data_to_pickle(outfile, all_tweets):
    
 def save_print_to_file(outfile, msg):
     with open(outfile, 'w') as fp:
-        print(msg, file=fp)  
-    
-# def get_all_tweets():
-#     '''
-#     Extract all tweets or load from a saved file
-#     '''
-#     if os.path.isfile(ORIG_TWEET_FILE):        
-#         tweets_df = read_data_from_pickle(ORIG_TWEET_FILE)  
-#         print('Loaded tweet extracts from file\n')
-#     else:
-#         print('Start scraping tweets from twitter.com...\n')
-#         # https://twitter.com/search-advanced
-#         list_of_tweets = query_tweets(TWEET_QUERY, 
-#                                       begindate=BEGINDATE, 
-#                                       enddate=ENDDATE, 
-#                                       lang=LANG)
-#         # Convert list of tweets to DataFrame
-#         tweets_df = pd.DataFrame([vars(x) for x in list_of_tweets])
-#         # Save tweet extracts to file
-#         save_data_to_pickle(ORIG_TWEET_FILE, tweets_df)
-#         print ('Tweet extracts saved\n')        
-    
-#     return tweets_df
+        print(msg, file=fp)
 
 def preprocess_tweets(all_tweets_df):
     '''
@@ -267,32 +244,16 @@ def vis_topics(lda_model, corpus, dict):
     pyLDAvis.save_html(lda_data, TOPIC_VIS_FILE)
     print ('Topic visual saved\n')
 
-# if __name__ == '__main__':
-#     # Get all tweets
-#     all_tweets_df = get_all_tweets()
-#     # Preprocess tweets
-#     cleaned_tweets_df = preprocess_tweets(all_tweets_df)
-#     # Convert series to list for word count
-#     tweets_text = [word for one_tweet in cleaned_tweets_df['token'] for word in one_tweet]
-#     # Get common ngrams word count
-#     word_count_df = get_word_count(tweets_text, num_gram=NUM_GRAMS)    
-#     # Generate word cloud
-#     tweets_wordcloud = wordcloud(word_count_df)  
-#     # Generate ngram tokens
-#     cleaned_tweets_df['ngram_token'] = [word_grams(x, NUM_GRAMS, NUM_GRAMS+1) for 
-#                      x in cleaned_tweets_df['token']]
-#     # Train LDA model and visualize generated topics
-#     lda_model = train_lda_model(cleaned_tweets_df['ngram_token'])
-#     print('DONE!')
-    
 # Get all tweets
-all_tweets_df = pd.read_csv("./tweets_filtered.csv", index_col = 0)
+all_tweets_df = read_data_from_pickle(ORIG_TWEET_FILE)
+all_tweets_df = pd.DataFrame(all_tweets_df)
 # Preprocess tweets
 cleaned_tweets_df = all_tweets_df.copy(deep=True)
 cleaned_tweets_df['token'] = [text_cleanup(x) for x in all_tweets_df['full_text']]
 # Save cleaned tweets and reload
 save_data_to_pickle(CLEANED_TWEET_FILE, cleaned_tweets_df)
-cleaned_tweets_df = read_data_from_pickle(CLEANED_TWEET_FILE)
+# cleaned_tweets_df = read_data_from_pickle(CLEANED_TWEET_FILE)
+
 # Convert series to list for word count
 tweets_text = [word for one_tweet in cleaned_tweets_df['token'] for word in one_tweet]
 # Get common ngrams word count
@@ -300,26 +261,10 @@ word_count_df = get_word_count(tweets_text, num_gram=NUM_GRAMS)
 # Generate word cloud
 tweets_wordcloud = wordcloud(word_count_df)
 # Generate ngram tokens
+
 cleaned_tweets_df['ngram_token'] = [word_grams(x, NUM_GRAMS, NUM_GRAMS+1) for 
                  x in cleaned_tweets_df['token']]
 save_data_to_pickle(MODEL_PATH + 'cleaned_tweets_ngrams', cleaned_tweets_df['ngram_token'])
 # Train LDA model and visualize generated topics
 lda_model = train_lda_model(cleaned_tweets_df['ngram_token'])
 print('DONE!')
-
-
-
-cleaned_tweets_ngram = read_data_from_pickle(MODEL_PATH + 'cleaned_tweets_ngrams')
-lda_model = models.ldamodel.LdaModel.load(LDA_MODEL_FILE)
-tweets_dict = corpora.Dictionary(cleaned_tweets_ngram)
-tweets_dict.filter_extremes(no_below=10, no_above=0.5)
-# bow_corpus = [tweets_dict.doc2bow(doc) for doc in cleaned_tweets_df['ngram_token']]
-
-# tfidf = models.TfidfModel(bow_corpus)
-# tfidf_corpus = tfidf[bow_corpus]
-
-test_tweet = 'asdas'
-tokenized_test = text_cleanup(test_tweet)
-ngram_test = word_grams(tokenized_test, NUM_GRAMS, NUM_GRAMS+1)
-corpus_test = tweets_dict.doc2bow(ngram_test)
-topic = lda_model[corpus_test]

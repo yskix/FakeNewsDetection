@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr 29 10:35:50 2020
-
-@author: rabeet
-"""
-
 from gensim import corpora, models
 import pickle, re
 import nltk
@@ -13,7 +5,7 @@ from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 import json
-
+import pandas as pd
 
 NUM_GRAMS = 2
 additional_stop_words=['hrtechconf','peopleanalytics','hrtech','hr','hrconfes',
@@ -92,33 +84,11 @@ def inference(article):
     ngram = word_grams(tokenized, NUM_GRAMS, NUM_GRAMS+1)
     corpus_test = tweets_dict.doc2bow(ngram)
     result = lda_model.get_document_topics(corpus_test)
+    topic_names = [lda_model.show_topic(x[0], 1)[0][0] for x in result]
     sorted_result = sorted(result, key = lambda x:x[1], reverse=True)
-    return sorted_result
+    return sorted_result, topic_names
 
 lda_model = models.ldamodel.LdaModel.load('./models/tweets_lda.model')
 cleaned_tweets_ngram = read_data_from_pickle('./models/cleaned_tweets_ngrams')
 tweets_dict = corpora.Dictionary(cleaned_tweets_ngram)
 tweets_dict.filter_extremes(no_below=10, no_above=0.5)
-
-"""
-with open('who_scrap2.json', 'r') as f:
-    articles = json.load(f)
-
-for key in articles:
-    article = articles[key]
-    results = inference(article)
-    articles[key].append(results[0:3])
-"""
-
-"""
-print("Enter text for topic modeling. Each paragraph must be entered separately. Submit empty string when finished.")
-results = []
-article = []
-while(True):
-    sent = input()
-    if len(sent) == 0:
-        break
-    article.append(sent)
-results = inference(article)
-print(results[0:3])
-"""
