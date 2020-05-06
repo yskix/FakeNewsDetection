@@ -22,6 +22,7 @@ from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 import pandas as pd
+import argparse
 
 
 def Sentiments (query):
@@ -153,8 +154,15 @@ def scoring(pair):
     cosine = np.dot(query_vec_1, query_vec_2) / (np.linalg.norm(query_vec_1) * np.linalg.norm(query_vec_2))
     return 1/(1 + math.exp(-100*(cosine - 0.95)))
 
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-n", "--news", required=True,
+	help="text of the news")
+args = vars(ap.parse_args())
 
-query = "Covid19 is deadly and spreads through 5G" ## change or input query here
+#query = "Covid19 is deadly and spreads through 5G" ## change or input query here
+query = args["news"]
+
 json_path = "who_scrap.json"   ## data corpus
 indices = []
 scores =[]
