@@ -40,7 +40,7 @@ pyzmq==19.0.0
 six==1.14.0
 slim==0.1
 tensorboard==1.10.0
-tensorflow==1.10.0
+tensorflow==2.7.2
 termcolor==1.1.0
 Werkzeug==1.0.1
 
